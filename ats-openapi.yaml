@@ -1,0 +1,108 @@
+openapi: 3.0.3
+
+info:
+  title: ATS HTTP API
+  description: HTTP API сервера АТС для JavaScript-клиента.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8081/ats
+    description: Локальный запуск
+
+paths:
+
+  /api/call/start:
+    post:
+      summary: Начать входящий звонок
+      operationId: startCall
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PhoneNumberRequest'
+            example:
+              phoneNumber: "8-909-589-45-82"
+      responses:
+        '200':
+          description: Звонок добавлен в очередь
+        '400':
+          description: Звонок уже есть в очереди
+
+  /api/call/cancel:
+    post:
+      summary: Отменить входящий звонок
+      operationId: cancelCall
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PhoneNumberRequest'
+            example:
+              phoneNumber: "8-909-589-45-82"
+      responses:
+        '200':
+          description: Звонок удалён из очереди
+        '400':
+          description: Звонок не найден в очереди
+
+  /api/history:
+    get:
+      summary: Получить историю событий
+      operationId: getHistory
+      responses:
+        '200':
+          description: Список событий, отсортированных по времени (новые сверху)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CallEvent'
+
+components:
+  schemas:
+
+    PhoneNumberRequest:
+      type: object
+      required:
+        - phoneNumber
+      properties:
+        phoneNumber:
+          type: string
+          description: Номер телефона
+          example: "8-909-589-45-82"
+
+    CallEvent:
+      type: object
+      required:
+        - type
+        - phoneNumber
+        - time
+      properties:
+        type:
+          type: string
+          description: Тип события
+          enum:
+            - INCOMING
+            - CANCELLED
+            - ANSWERED
+            - ENDED
+        phoneNumber:
+          type: string
+          description: Номер телефона
+          example: "8-909-589-45-82"
+        time:
+          type: string
+          format: date-time
+          description: Дата и время события в формате ISO 8601
+          example: "2026-10-05T08:30:00Z"
+        extensionNumber:
+          type: integer
+          description: Внутренний номер аппарата (только для ANSWERED и ENDED)
+          example: 113
+        operatorName:
+          type: string
+          description: Имя оператора (только для ANSWERED и ENDED)
+          example: "Вася"
