@@ -1,0 +1,59 @@
+openapi: 3.0.3
+
+info:
+  title: Telephony HTTP API
+  description: HTTP API сервера Телефонии для вызовов от сервера АТС.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080/telephony
+    description: Локальный запуск
+
+paths:
+  /api/call/add:
+    post:
+      summary: Добавить входящий звонок в очередь
+      operationId: addCall
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PhoneNumberRequest'
+            example:
+              phoneNumber: "8-909-589-45-82"
+      responses:
+        '200':
+          description: Звонок успешно добавлен в очередь
+        '400':
+          description: Звонок уже есть в очереди
+
+  /api/call/remove:
+    post:
+      summary: Удалить звонок из очереди
+      operationId: removeCall
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PhoneNumberRequest'
+            example:
+              phoneNumber: "8-909-589-45-82"
+      responses:
+        '200':
+          description: Звонок успешно удалён из очереди
+        '400':
+          description: Звонок не найден в очереди
+
+components:
+  schemas:
+    PhoneNumberRequest:
+      type: object
+      required:
+        - phoneNumber
+      properties:
+        phoneNumber:
+          type: string
+          description: Номер входящего звонка
+          example: "8-909-589-45-82"
