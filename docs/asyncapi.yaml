@@ -1,0 +1,108 @@
+asyncapi: 2.6.0
+
+info:
+  title: Telephony Events
+  description: |
+    События, которые сервер Телефонии публикует в RabbitMQ.
+    Сервер АТС читает эти события и сохраняет их в историю.
+  version: 1.0.0
+
+servers:
+  rabbitmq:
+    url: amqp://guest:guest@localhost:5672
+    protocol: amqp
+    description: Локальный брокер RabbitMQ
+    bindings:
+      amqp:
+        exchange: telephony.events
+        exchangeType: direct
+        routingKey: call.event
+
+channels:
+
+  telephony.events:
+    description: |
+      Exchange типа direct. Все события публикуются с routing key "call.event".
+      Очередь "ats.events" привязана к exchange по этому ключу.
+    publish:
+      operationId: publishCallEvent
+      summary: Публикация события о звонке
+      bindings:
+        amqp:
+          exchange:
+            name: telephony.events
+            type: direct
+            durable: true
+          bindingVersion: '0.2.0'
+      message:
+        $ref: '#/components/messages/CallEvent'
+
+components:
+
+  messages:
+
+    CallEvent:
+      name: CallEvent
+      title: Call event
+      summary: |
+        Событие о звонке. Поле "type" определяет, какие поля обязательны.
+        Для INCOMING и CANCELLED — только type, phoneNumber, time.
+        Для ANSWERED и ENDED — ещё extensionNumber и operatorName.
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/CallEventPayload'
+      examples:
+        - name: incomingExample
+          payload:
+            type: INCOMING
+            phoneNumber: "8-909-589-45-82"
+            time: "2026-10-05T08:15:30Z"
+        - name: answeredExample
+          payload:
+            type: ANSWERED
+            phoneNumber: "8-909-589-45-82"
+            extensionNumber: 113
+            operatorName: "Вася"
+            time: "2026-10-05T16:16:02Z"
+        - name: endedExample
+          payload:
+            type: ENDED
+            phoneNumber: "8-909-589-45-82"
+            extensionNumber: 113
+            operatorName: "Вася"
+            time: "2026-10-05T16:18:44Z"
+
+  schemas:
+
+    CallEventPayload:
+      type: object
+      required:
+        - type
+        - phoneNumber
+        - time
+      properties:
+        type:
+          type: string
+          description: Тип события
+          enum:
+            - INCOMING
+            - CANCELLED
+            - ANSWERED
+            - ENDED
+        phoneNumber:
+          type: string
+          description: Номер входящего звонка
+          example: "8-909-589-45-82"
+        time:
+          type: string
+          format: date-time
+          description: Дата и время события в формате ISO 8601
+          example: "2026-10-05T16:30:00Z"
+        extensionNumber:
+          type: integer
+          description: Внутренний номер аппарата (только для ANSWERED и ENDED)
+          example: 113
+        operatorName:
+          type: string
+          description: Имя оператора (только для ANSWERED и ENDED)
+          example: "Вася"
