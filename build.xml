@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Telephony" default="compile" basedir=".">
+
+    <!--пути проекта-->
+    <property name="src.dir"     value="src"/>
+    <property name="war.dir"     value="war"/>
+    <property name="libs.dir"    value="libs"/>
+    <property name="classes.dir" value="${war.dir}/WEB-INF/classes"/>
+
+    <property name="gwt.sdk" location="C:/Users/Анна Т/Downloads/Telegram Desktop/gwt-2.7.0/gwt-2.7.0"/>
+    <property name="gwt.module" value="com.telephony.Telephony"/>
+
+    <property name="javac.source" value="1.7"/>
+    <property name="javac.target" value="1.7"/>
+
+    <path id="project.classpath">
+        <fileset dir="${libs.dir}" includes="*.jar"/>
+        <pathelement location="${gwt.sdk}/gwt-user.jar"/>
+        <pathelement location="${gwt.sdk}/gwt-dev.jar"/>
+        <pathelement location="${gwt.sdk}/gwt-servlet.jar"/>
+        <pathelement location="${gwt.sdk}/validation-api-1.0.0.GA.jar"/>
+    </path>
+
+    <target name="clean" description="Удалить результаты сборки">
+        <delete dir="${classes.dir}"/>
+        <echo message="Directory ${classes.dir} deleted"/>
+    </target>
+
+    <target name="compile" depends="clean" description="Скомпилировать Java исходники">
+        <mkdir dir="${classes.dir}"/>
+
+        <javac srcdir="${src.dir}"
+               destdir="${classes.dir}"
+               source="${javac.source}"
+               target="${javac.target}"
+               encoding="UTF-8"
+               debug="true"
+               nowarn="true"
+               includeantruntime="false">
+            <classpath refid="project.classpath"/>
+        </javac>
+
+        <copy todir="${classes.dir}">
+            <fileset dir="${src.dir}">
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+
+        <echo message="Compilation finished. Classes: ${classes.dir}"/>
+    </target>
+
+    <target name="gwtc" depends="compile" description="Compile GWT to JavaScript">
+        <java failonerror="true" fork="true" classname="com.google.gwt.dev.Compiler">
+            <classpath>
+                <pathelement location="${src.dir}"/>
+                <pathelement location="${classes.dir}"/>
+                <path refid="project.classpath"/>
+            </classpath>
+            <jvmarg value="-Xmx512M"/>
+            <arg line="-war"/>
+            <arg value="${war.dir}"/>
+            <arg value="${gwt.module}"/>
+        </java>
+    </target>
+
+    <target name="copy-libs" depends="compile" description="Copy runtime jars to WEB-INF/lib">
+        <mkdir dir="${war.dir}/WEB-INF/lib"/>
+        <copy todir="${war.dir}/WEB-INF/lib">
+            <fileset dir="${libs.dir}" includes="*.jar"/>
+        </copy>
+        <copy file="${gwt.sdk}/gwt-servlet.jar"
+              todir="${war.dir}/WEB-INF/lib"/>
+    </target>
+
+    <!--сборка war архива-->
+    <target name="war" depends="gwtc, copy-libs" description="Build WAR archive">
+        <war destfile="Telephony.war" webxml="${war.dir}/WEB-INF/web.xml">
+            <fileset dir="${war.dir}">
+                <exclude name="WEB-INF/web.xml"/>
+            </fileset>
+        </war>
+        <echo message="WAR archive created: Telephony.war"/>
+    </target>
+
+</project>
