@@ -11,16 +11,19 @@ bin/
 gwt-unitCache/
 *.gwt.rpc
 *.symbolMap
-war/WEB-INF/deploy/
+
+Telephony/war/telephony/
+
+Telephony/war/WEB-INF/deploy/
 
 # Compiled GWT output
-war/telephony/
+Telephony/war/telephony/
 
 # Compiled classes & resources
-war/WEB-INF/classes/
+Telephony/war/WEB-INF/classes/
 
 # Copied libraries at build time
-war/WEB-INF/lib/
+Telephony/war/WEB-INF/lib/
 
 # Built WAR archive
 *.war
