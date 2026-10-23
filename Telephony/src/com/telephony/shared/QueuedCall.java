@@ -6,6 +6,7 @@ import java.util.Date;
 public class QueuedCall implements Serializable {
     private String phoneNumber;
     private Date time;
+    
     public QueuedCall() {
     }
     public QueuedCall(String phoneNumber, Date time) {

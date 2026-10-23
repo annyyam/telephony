@@ -14,7 +14,7 @@ public class RoomView extends Composite {
         Label title = new Label("Комнаты");
         title.setStyleName("sectionTitle");
         panel.add(title);
-        //panel.add(new Label("Главный зал"));
+
         Label room1 = new Label("Главный зал");
         room1.setStyleName("listItem");
         panel.add(room1);
