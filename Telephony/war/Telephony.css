@@ -1,0 +1,67 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #FFB6C1;
+    margin: 0;
+    padding: 30px;
+}
+
+.mainLayout {
+    margin: 0 auto;
+}
+
+.appTitle {
+    color: #FFD700; 
+    font-size: 30px;
+    font-weight: bold;
+    margin: 10px;
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.panelBox {
+    background-color: #FAFAD2;
+    border-radius: 8px;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.roomPanel {
+    width: 250px;
+    height: 500px;
+}
+.queuePanel {
+    width: 250px;
+    height: 350px;
+}
+.activePanel {
+    width: 450px;
+    height: 350px;
+}
+
+.sectionTitle {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.listItem {
+    padding: 6px 0;
+    font-size: 14px;
+    color: #333;
+}
+
+.gwt-Button {
+    background-color: #FFF;
+    border: 1px solid #FF69B4;
+    border-radius: 4px;
+    padding: 6px 15px;
+    margin-top: 15px;
+    cursor: pointer;
+    font-weight: bold;
+    color: #333;
+}
+.gwt-Button:hover {
+    background-color: #FFB6C1;
+    color: white;
+}

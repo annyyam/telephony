@@ -1,102 +1,158 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project name="Telephony" default="compile" basedir=".">
+<?xml version="1.0" encoding="utf-8" ?>
+<project name="Telephony" default="build" basedir=".">
+  <!-- Arguments to gwtc and devmode targets -->
+  <property name="gwt.args" value="" />
 
-    <!--пути проекта-->
-    <property name="src.dir"     value="src"/>
-    <property name="war.dir"     value="war"/>
-    <property name="libs.dir"    value="libs"/>
-    <property name="classes.dir" value="${war.dir}/WEB-INF/classes"/>
+  <!-- Configure path to GWT SDK -->
+  <property name="gwt.sdk" location="C:/Users/Анна Т/Downloads/Telegram Desktop/gwt-2.7.0/gwt-2.7.0" />
 
-    <property name="gwt.sdk" location="C:/Users/Анна Т/Downloads/Telegram Desktop/gwt-2.7.0/gwt-2.7.0"/>
-    <property name="gwt.module" value="com.telephony.Telephony"/>
+  <path id="project.class.path">
+    <pathelement location="war/WEB-INF/classes"/>
+    <pathelement location="${gwt.sdk}/gwt-user.jar"/>
+    <pathelement location="${gwt.sdk}/gwt-dev.jar"/>
+    <pathelement location="${gwt.sdk}/validation-api-1.0.0.GA.jar"/>
+    <pathelement location="${gwt.sdk}/validation-api-1.0.0.GA-sources.jar"/>
+    <fileset dir="war/WEB-INF/lib" includes="**/*.jar"/>
+    <!-- Add any additional non-server libs (such as JUnit) here -->
+  </path>
 
-    <property name="javac.source" value="1.7"/>
-    <property name="javac.target" value="1.7"/>
+  <target name="libs" description="Copy libs to WEB-INF/lib">
+    <mkdir dir="war/WEB-INF/lib" />
+    <copy todir="war/WEB-INF/lib" file="${gwt.sdk}/gwt-servlet.jar" />
+    <copy todir="war/WEB-INF/lib" file="${gwt.sdk}/gwt-servlet-deps.jar" />
+    <!-- Add any additional server libs that need to be copied -->
+  </target>
 
-    <path id="project.classpath">
-        <fileset dir="${libs.dir}" includes="*.jar"/>
-        <pathelement location="${gwt.sdk}/gwt-user.jar"/>
-        <pathelement location="${gwt.sdk}/gwt-dev.jar"/>
-        <pathelement location="${gwt.sdk}/gwt-servlet.jar"/>
-        <pathelement location="${gwt.sdk}/validation-api-1.0.0.GA.jar"/>
-    </path>
+  <target name="javac" depends="libs" description="Compile java source to bytecode">
+    <mkdir dir="war/WEB-INF/classes"/>
+    <javac srcdir="src" includes="**" encoding="utf-8"
+        destdir="war/WEB-INF/classes"
+        source="1.7" target="1.7" nowarn="true"
+        debug="true" debuglevel="lines,vars,source">
+      <classpath refid="project.class.path"/>
+    </javac>
+    <copy todir="war/WEB-INF/classes">
+      <fileset dir="src" excludes="**/*.java"/>
+    </copy>
+  </target>
 
-    <target name="clean" description="Удалить результаты сборки">
-        <delete dir="${classes.dir}"/>
-        <echo message="Directory ${classes.dir} deleted"/>
-    </target>
+  <target name="gwtc" depends="javac" description="GWT compile to JavaScript (production mode)">
+    <java failonerror="true" fork="true" classname="com.google.gwt.dev.Compiler" maxmemory="256m">
+      <classpath>
+        <pathelement location="src"/>
+        <path refid="project.class.path"/>
+      </classpath>
+      <arg line="-war"/>
+      <arg value="war"/>
+      <!-- Additional arguments like -style PRETTY or -logLevel DEBUG -->
+      <arg line="${gwt.args}"/>
+      <arg value="com.telephony.Telephony"/>
+    </java>
+  </target>
 
-    <target name="compile" depends="clean" description="Скомпилировать Java исходники">
-        <mkdir dir="${classes.dir}"/>
+  <target name="devmode" depends="javac" description="Run development mode (pass -Dgwt.args=-nosuperDevMode to fallback to classic DevMode)">
+    <java failonerror="true" fork="true" classname="com.google.gwt.dev.DevMode" maxmemory="1g">
+      <classpath>
+        <pathelement location="src"/>
+        <path refid="project.class.path"/>
+        <pathelement location="${gwt.sdk}/gwt-codeserver.jar"/>
+      </classpath>
+      <arg value="-startupUrl"/>
+      <arg value="Telephony.html"/>
+      <arg line="-war"/>
+      <arg value="war"/>
+      <!-- Additional arguments like -style PRETTY, -logLevel DEBUG or -nosuperDevMode -->
+      <arg line="${gwt.args}"/>
+      <arg value="com.telephony.Telephony"/>
+      <arg value="com.telephony.Telephony"/>
+    </java>
+  </target>
 
-        <javac srcdir="${src.dir}"
-               destdir="${classes.dir}"
-               source="${javac.source}"
-               target="${javac.target}"
-               encoding="UTF-8"
-               debug="true"
-               nowarn="true"
-               includeantruntime="false">
-            <classpath refid="project.classpath"/>
-        </javac>
+  <target name="eclipse.generate" depends="libs" description="Generate eclipse project">
+    <java failonerror="true" fork="true" classname="com.google.gwt.user.tools.WebAppCreator">
+      <classpath>
+        <path refid="project.class.path"/>
+      </classpath>
+      <arg value="-XonlyEclipse"/>
+      <arg value="-ignore"/>
+      <arg value="com.telephony.Telephony"/>
+    </java>
+  </target>
 
-        <copy todir="${classes.dir}">
-            <fileset dir="${src.dir}">
-                <exclude name="**/*.java"/>
-            </fileset>
-        </copy>
+<!--
+Test targets suppressed because -junit argument was not specified when running webAppCreator.
 
-        <echo message="Compilation finished. Classes: ${classes.dir}"/>
-    </target>
+  <target name="javac.tests" depends="javac" description="Compiles test code">
+    <javac srcdir="test" includes="**" encoding="utf-8"
+      source="1.7" target="1.7" nowarn="true"
+      destdir="war/WEB-INF/classes"
+      debug="true" debuglevel="lines,vars,source">
+      <classpath location="path_to_the_junit_jar"/>
+      <classpath refid="project.class.path"/>
+    </javac>
+  </target>
+  
+  <target name="test.dev" depends="javac.tests" description="Run development mode tests">
+    <mkdir dir="reports/htmlunit.dev" />
+    <junit fork="yes" printsummary="yes" haltonfailure="yes" maxmemory="256m">
+      <sysproperty key="gwt.args" value="-logLevel WARN -war www-test" />
+      <sysproperty key="java.awt.headless" value="true" />
+      <classpath>
+        <pathelement location="src" />
+        <pathelement location="test" />
+        <path refid="project.class.path" />
+        <pathelement location="C:/Users/Анна Т/Downloads/Telegram Desktop/gwt-2.7.0/gwt-2.7.0/validation-api-1.0.0.GA.jar" />
+        <pathelement location="C:/Users/Анна Т/Downloads/Telegram Desktop/gwt-2.7.0/gwt-2.7.0/validation-api-1.0.0.GA-sources.jar" />
+        <pathelement location="path_to_the_junit_jar" />
+      </classpath>
+      <batchtest todir="reports/htmlunit.dev" >
+        <fileset dir="test" >
+          <include name="**/*Test.java" />
+        </fileset>
+      </batchtest>
+      <formatter type="plain" />
+      <formatter type="xml" />
+    </junit>
+  </target>
 
-    <target name="gwtc" depends="compile" description="Compile GWT to JavaScript">
-        <java failonerror="true" fork="true" classname="com.google.gwt.dev.Compiler">
-            <classpath>
-                <pathelement location="${src.dir}"/>
-                <pathelement location="${classes.dir}"/>
-                <path refid="project.classpath"/>
-            </classpath>
-            <jvmarg value="-Xmx512M"/>
-            <arg line="-war"/>
-            <arg value="${war.dir}"/>
-            <arg value="${gwt.module}"/>
-        </java>
-    </target>
+  <target name="test.prod" depends="javac.tests" description="Run production mode tests">
+    <mkdir dir="reports/htmlunit.prod" />
+    <junit fork="yes" printsummary="yes" haltonfailure="yes" maxmemory="256m">
+      <sysproperty key="gwt.args" value="-prod -logLevel WARN -war www-test" />
+      <sysproperty key="java.awt.headless" value="true" />
+      <classpath>
+        <pathelement location="src" />
+        <pathelement location="test" />
+        <path refid="project.class.path" />
+        <pathelement location="C:/Users/Анна Т/Downloads/Telegram Desktop/gwt-2.7.0/gwt-2.7.0/validation-api-1.0.0.GA.jar" />
+        <pathelement location="C:/Users/Анна Т/Downloads/Telegram Desktop/gwt-2.7.0/gwt-2.7.0/validation-api-1.0.0.GA-sources.jar" />
+        <pathelement location="path_to_the_junit_jar" />
+      </classpath>
+      <batchtest todir="reports/htmlunit.prod" >
+        <fileset dir="test" >
+          <include name="**/*Test.java" />
+        </fileset>
+      </batchtest>
+      <formatter type="plain" />
+      <formatter type="xml" />
+    </junit>
+  </target>
 
-    <target name="copy-libs" depends="compile" description="Copy runtime jars to WEB-INF/lib">
-        <mkdir dir="${war.dir}/WEB-INF/lib"/>
-        <copy todir="${war.dir}/WEB-INF/lib">
-            <fileset dir="${libs.dir}" includes="*.jar"/>
-        </copy>
-        <copy file="${gwt.sdk}/gwt-servlet.jar"
-              todir="${war.dir}/WEB-INF/lib"/>
-    </target>
+  <target name="test" description="Run development and production mode tests">
+    <antcall target="test.dev" />
+    <antcall target="test.prod" />
+  </target>
+-->
 
-    <!--сборка war архива-->
-    <target name="war" depends="gwtc, copy-libs" description="Build WAR archive">
-        <war destfile="Telephony.war" webxml="${war.dir}/WEB-INF/web.xml">
-            <fileset dir="${war.dir}">
-                <exclude name="WEB-INF/web.xml"/>
-            </fileset>
-        </war>
-        <echo message="WAR archive created: Telephony.war"/>
-    </target>
-	
-    <!--запуск Super Dev Mode-->
-    <target name="devmode" depends="compile" description="Run GWT Super Dev Mode">
-        <java failonerror="true" fork="true" classname="com.google.gwt.dev.DevMode">
-            <classpath>
-                <pathelement location="${src.dir}"/>
-                <pathelement location="${classes.dir}"/>
-                <path refid="project.classpath"/>
-            </classpath>
-            <jvmarg value="-Xmx512M"/>
-            <arg line="-war"/>
-            <arg value="${war.dir}"/>
-            <arg line="-startServer"/>
-            <arg line="-port 8889"/>
-            <arg value="${gwt.module}"/>
-        </java>
-    </target>
+  <target name="build" depends="gwtc" description="Build this project" />
+
+  <target name="war" depends="build" description="Create a war file">
+    <zip destfile="Telephony.war" basedir="war"/>
+  </target>
+
+  <target name="clean" description="Cleans this project">
+    <delete dir="war/WEB-INF/classes" failonerror="false" />
+    <delete dir="war/telephony" failonerror="false" />
+  </target>
 
 </project>

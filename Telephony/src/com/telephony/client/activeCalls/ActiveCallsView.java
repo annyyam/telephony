@@ -1,4 +1,4 @@
-package com.telephony.client;
+package com.telephony.client.activeCalls;
 
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
@@ -9,7 +9,10 @@ public class ActiveCallsView extends Composite {
 
     public ActiveCallsView() {
         VerticalPanel panel = new VerticalPanel();
+        panel.setStyleName("panelBox");
+        panel.addStyleName("activePanel");
         Label title = new Label("Текущие звонки:");
+        title.setStyleName("sectionTitle");
         panel.add(title);
         panel.add(new Label("100 Вася 89571359475"));
         Button endButton = new Button("Окончить");
