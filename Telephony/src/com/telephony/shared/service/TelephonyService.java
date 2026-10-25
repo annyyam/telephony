@@ -11,7 +11,7 @@ import com.telephony.shared.Room;
 import com.telephony.shared.TelephonyException;
 
 //url по которому сервер будет ждать rpc-запросы:
-@RemoteServiceRelativePath("telephony")
+@RemoteServiceRelativePath("rpc")
 public interface TelephonyService extends RemoteService {
     //операция 3
     List<QueuedCall> getQueue() throws TelephonyException;

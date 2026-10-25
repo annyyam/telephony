@@ -1,29 +1,50 @@
 package com.telephony.client.room;
 
-import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.VerticalPanel;
+import java.util.List;
 
-public class RoomView extends Composite {
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.Label;
+import com.telephony.shared.Room;
+
+public class RoomView extends Composite implements RoomDisplay {
+    private FlowPanel listPanel;
+    private RoomHandler handler;
 
     public RoomView() {
-        VerticalPanel panel = new VerticalPanel();
-        panel.setStyleName("panelBox");
-        panel.addStyleName("roomPanel");
-        panel.setWidth("250px");
+        FlowPanel rootPanel = new FlowPanel();
+        rootPanel.setStyleName("panelBox");
+        rootPanel.addStyleName("roomPanel");
         Label title = new Label("Комнаты");
         title.setStyleName("sectionTitle");
-        panel.add(title);
+        rootPanel.add(title);
+        listPanel = new FlowPanel();
+        rootPanel.add(listPanel);
+        initWidget(rootPanel);
+    }
 
-        Label room1 = new Label("Главный зал");
-        room1.setStyleName("listItem");
-        panel.add(room1);
-        panel.add(new Label("100 Вася")); 
-        panel.add(new Label("101 Коля"));
-        Label room2 = new Label("Офис");
-        room2.setStyleName("listItem");
-        panel.add(room2);
-        panel.add(new Label("202 Юля"));
-        initWidget(panel);
+    @Override
+    public void setRooms(List<Room> rooms) {
+        listPanel.clear();
+        for (final Room room : rooms) {
+            Label label = new Label(room.getName());
+            label.setStyleName("listItem");
+            label.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    if (handler != null) {
+                        handler.onRoomSelected(room);
+                    }
+                }
+            });
+            listPanel.add(label);
+        }
+    }
+
+    @Override
+    public void setHandler(RoomHandler handler) {
+        this.handler = handler;
     }
 }
