@@ -18,5 +18,6 @@
 
     <mappers>
         <mapper resource="com/telephony/server/RoomMapper.xml" />
+        <mapper resource="com/telephony/server/PhoneMapper.xml" /> 
     </mappers>
 </configuration>
