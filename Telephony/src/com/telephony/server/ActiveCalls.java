@@ -30,4 +30,8 @@ public class ActiveCalls {
     public synchronized List<ActiveCall> getAll() {
         return new ArrayList<ActiveCall>(activeMap.values());
     }
+    
+    public synchronized ActiveCall getByExtension(long extensionNumber) {
+        return activeMap.get(extensionNumber);
+    }
 }

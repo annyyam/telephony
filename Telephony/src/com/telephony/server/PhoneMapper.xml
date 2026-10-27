@@ -10,4 +10,13 @@
         FROM phones 
         WHERE extension_number = #{extensionNumber}
     </select>
+    
+    <select id="getPhonesByRoomId" parameterType="long" resultType="com.telephony.shared.Phone">
+        SELECT id, 
+               extension_number AS extensionNumber, 
+               room_id AS roomId, 
+               operator_name AS operatorName 
+        FROM phones 
+        WHERE room_id = #{roomId}
+    </select>
 </mapper>

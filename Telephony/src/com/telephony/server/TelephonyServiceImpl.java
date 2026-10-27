@@ -85,6 +85,26 @@ public class TelephonyServiceImpl extends RemoteServiceServlet implements Teleph
 
     @Override
     public List<PhoneWithStatus> getPhonesInRoom(long roomId) throws TelephonyException {
-        return new ArrayList<PhoneWithStatus>();
+        SqlSession session = MyBatisUtil.getSqlSessionFactory().openSession();
+        List<PhoneWithStatus> result = new ArrayList<PhoneWithStatus>();
+        try {
+            PhoneMapper mapper = session.getMapper(PhoneMapper.class);
+            List<Phone> phones = mapper.getPhonesByRoomId(roomId);
+            
+            for (Phone phone : phones) {
+                ActiveCall active = ActiveCalls.get().getByExtension(phone.getExtensionNumber());
+                String currentCallNumber = (active != null) ? active.getPhoneNumber() : null;
+                
+                result.add(new PhoneWithStatus(
+                    phone.getId(), 
+                    phone.getExtensionNumber(), 
+                    phone.getOperatorName(), 
+                    currentCallNumber
+                ));
+            }
+        } finally {
+            session.close();
+        }
+        return result;
     }
 }

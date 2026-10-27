@@ -15,20 +15,41 @@ public class ActiveCallsPresenter {
     private ActiveCallsDisplay display;
     private TelephonyServiceAsync service;
 
-    public ActiveCallsPresenter(ActiveCallsDisplay display) {
+    public ActiveCallsPresenter(final ActiveCallsDisplay display) {
         this.display = display;
         this.service = GWT.create(TelephonyService.class);
         AppEventBus.get().addHandler(CallStateChangedEvent.getType(), new CallStateChangedEvent.Handler() {
             @Override
             public void onCallStateChanged(CallStateChangedEvent event) {
-                loadActiveCalls(); // Перезагружаем данные с сервера
+                loadActiveCalls(); 
             }
         });
         display.setHandler(new ActiveCallsDisplay.ActiveCallsHandler() {
             @Override
             public void onEndCallClicked() {
-                //
-                Window.alert(":)))");
+                Long extNumber = display.getSelectedExtensionNumber();
+                
+                if (extNumber == null) {
+                    Window.alert("Сначала выберите активный звонок!");
+                    return;
+                }
+
+                sendEndCallRequest(extNumber);
+            }
+        });
+    }
+    
+    private void sendEndCallRequest(long extensionNumber) {
+        service.endCall(extensionNumber, new AsyncCallback<Void>() {
+            @Override
+            public void onSuccess(Void result) {
+                AppEventBus.get().fireEvent(new CallStateChangedEvent());
+                Window.alert("Звонок завершен!");
+            }
+
+            @Override
+            public void onFailure(Throwable caught) {
+                Window.alert("Ошибка при завершении: " + caught.getMessage());
             }
         });
     }
