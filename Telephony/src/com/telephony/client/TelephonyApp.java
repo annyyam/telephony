@@ -25,13 +25,13 @@ public class TelephonyApp implements EntryPoint {
         //rooms
         RoomView roomView = new RoomView();
         RoomPresenter roomPresenter = new RoomPresenter(roomView);
-        roomPresenter.loadRooms(); // Просим данные с сервера
+        roomPresenter.loadRooms(); 
         panel.add(roomView);
         
         //queue
         QueueView queueView = new QueueView();
         QueuePresenter queuePresenter = new QueuePresenter(queueView);
-        queuePresenter.loadQueue(); // Просим данные с сервера
+        queuePresenter.loadQueue(); 
         panel.add(queueView);
         
         //calls
@@ -41,7 +41,7 @@ public class TelephonyApp implements EntryPoint {
         rightPanel.add(appTitle);
         ActiveCallsView activeCallsView = new ActiveCallsView();
         ActiveCallsPresenter activeCallsPresenter = new ActiveCallsPresenter(activeCallsView);
-        activeCallsPresenter.loadActiveCalls(); // Просим данные с сервера
+        activeCallsPresenter.loadActiveCalls(); 
         rightPanel.add(activeCallsView);
         panel.add(rightPanel);
         

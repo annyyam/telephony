@@ -5,7 +5,7 @@ import java.io.Serializable;
 public class Room implements Serializable {
     private long id;
     private String name;
-
+    
     public Room() {
     }
     public Room(long id, String name) {

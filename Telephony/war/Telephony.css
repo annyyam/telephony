@@ -65,3 +65,8 @@ body {
     background-color: #FFB6C1;
     color: white;
 }
+.listItemSelected {
+    background-color: #FFB6C1; /* Розовая подсветка */
+    font-weight: bold;
+    border-radius: 4px;
+}

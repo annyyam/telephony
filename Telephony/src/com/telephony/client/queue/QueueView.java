@@ -14,7 +14,9 @@ public class QueueView extends Composite implements QueueDisplay {
     private FlowPanel listPanel;
     private Button answerButton;
     private QueueHandler handler;
-
+    private String selectedPhoneNumber = null;
+    private Label selectedLabel = null;
+   
     public QueueView() {
         FlowPanel panel = new FlowPanel();
         panel.setStyleName("panelBox");
@@ -44,9 +46,29 @@ public class QueueView extends Composite implements QueueDisplay {
     @Override
     public void setQueue(List<QueuedCall> calls) {
         listPanel.clear();
-        for (QueuedCall call : calls) {
-            Label label = new Label(call.getPhoneNumber());
+        selectedLabel = null;
+        for (final QueuedCall call : calls) {
+            final Label label = new Label(call.getPhoneNumber());
             label.setStyleName("listItem");
+            label.getElement().getStyle().setCursor(com.google.gwt.dom.client.Style.Cursor.POINTER);
+            if (call.getPhoneNumber().equals(selectedPhoneNumber)) {
+                label.addStyleName("listItemSelected");
+                selectedLabel = label;
+            }
+            label.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    // офф подсветку со старого
+                    if (selectedLabel != null) {
+                        selectedLabel.removeStyleName("listItemSelected");
+                    }
+                    // он новый
+                    selectedLabel = label;
+                    selectedLabel.addStyleName("listItemSelected");
+                    selectedPhoneNumber = call.getPhoneNumber();
+                }
+            });
+            
             listPanel.add(label);
         }
     }
@@ -54,5 +76,10 @@ public class QueueView extends Composite implements QueueDisplay {
     @Override
     public void setHandler(QueueHandler handler) {
         this.handler = handler;
+    }
+
+    @Override
+    public String getSelectedPhoneNumber() {
+        return selectedPhoneNumber;
     }
 }

@@ -7,7 +7,9 @@ import com.telephony.shared.QueuedCall;
 
 public interface QueueDisplay extends IsWidget {
     void setQueue(List<QueuedCall> calls);
-
+    
+    String getSelectedPhoneNumber();
+    
     void setHandler(QueueHandler handler);
 
     interface QueueHandler {
