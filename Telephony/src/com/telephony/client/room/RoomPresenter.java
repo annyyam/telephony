@@ -5,6 +5,7 @@ import java.util.List;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.telephony.shared.PhoneWithStatus;
 import com.telephony.shared.Room;
 import com.telephony.shared.service.TelephonyService;
 import com.telephony.shared.service.TelephonyServiceAsync;
@@ -19,8 +20,7 @@ public class RoomPresenter {
         display.setHandler(new RoomDisplay.RoomHandler() {
             @Override
             public void onRoomSelected(Room room) {
-                //
-                Window.alert("Выбрана комната: " + room.getName() + " (ID: " + room.getId() + ")");
+                loadPhones(room.getId());
             }
         });
     }
@@ -35,6 +35,19 @@ public class RoomPresenter {
             @Override
             public void onFailure(Throwable caught) {
                 Window.alert("Не удалось загрузить комнаты: " + caught.getMessage());
+            }
+        });
+    }
+    
+    private void loadPhones(final long roomId) {
+        service.getPhonesInRoom(roomId, new AsyncCallback<List<PhoneWithStatus>>() {
+            @Override
+            public void onSuccess(List<PhoneWithStatus> result) {
+                display.setPhones(roomId, result);
+            }
+            @Override
+            public void onFailure(Throwable caught) {
+                Window.alert("Ошибка загрузки аппаратов: " + caught.getMessage());
             }
         });
     }

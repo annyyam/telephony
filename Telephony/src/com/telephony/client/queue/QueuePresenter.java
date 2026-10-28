@@ -7,6 +7,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.telephony.client.AppEventBus;
 import com.telephony.client.CallStateChangedEvent;
+import com.telephony.client.SelectionContext;
 import com.telephony.shared.QueuedCall;
 import com.telephony.shared.service.TelephonyService;
 import com.telephony.shared.service.TelephonyServiceAsync;
@@ -28,15 +29,14 @@ public class QueuePresenter {
                     return;
                 }
 
-                String extStr = Window.prompt("Введите ваш внутренний номер аппарата (например, 100):", "100");
-                if (extStr == null) return;
-
-                try {
-                    long extensionNumber = Long.parseLong(extStr);
-                    sendAnswerRequest(extensionNumber, phoneNumber);
-                } catch (NumberFormatException e) {
-                    Window.alert("Некорректный номер аппарата");
+                Long extensionNumber = SelectionContext.get().getSelectedExtension();
+                
+                if (extensionNumber == null) {
+                    Window.alert("Сначала выберите аппарат (оператора) в левой панели!");
+                    return;
                 }
+
+                sendAnswerRequest(extensionNumber, phoneNumber);
             }
         });
     }
